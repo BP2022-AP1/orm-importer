@@ -54,14 +54,25 @@ def get_signal_function(signal: Node) -> str:
 def get_signal_kind(signal: Node) -> str:
     if not signal.tags['railway'] == 'signal':
         raise Exception('Expected signal node')
-    # TODO: Check the mapping of ORM tags to PlanPro signal kinds
     # ORM Reference: https://wiki.openstreetmap.org/wiki/OpenRailwayMap/Tagging/Signal
-    # Supported kinds in Arne's generator: "Hauptsignal", "Mehrabschnittssignal", "Vorsignal", "Sperrsignal", "Hauptsperrsignal", "andere"
     if 'railway:signal:main' in signal.tags.keys():
         return 'Hauptsignal'
-    elif 'railway:signal:minor' in signal.tags.keys():
+    elif 'railway:signal:distant' in signal.tags.keys():
         return 'Vorsignal'
     elif 'railway:signal:combined' in signal.tags.keys():
         return 'Mehrabschnittssignal'
+    elif 'railway:signal:shunting' in signal.tags.keys():
+        return 'Sperrsignal'
+    elif 'railway:signal:main' in signal.tags.keys() and 'railway:signal:minor' in signal.tags.keys():
+        return 'Hauptsperrsignal'
+    # Names in comment are not yet supported by PlanPro generator
+    elif 'railway:signal:main_repeated' in signal.tags.keys():
+        return 'andere' #'Vorsignalwiederholer'
+    elif 'railway:signal:minor' in signal.tags.keys():
+        return 'andere' #'Zugdeckungssignal'
+    elif 'railway:signal:crossing' in signal.tags.keys():
+        return 'andere' #'Überwachungssignal'
+    elif 'railway:signal:combined' in signal.tags.keys() and 'railway:signal:minor' in signal.tags.keys():
+        return 'andere' #'Mehrabschnittssperrsignal'
     else:
         return 'andere'
